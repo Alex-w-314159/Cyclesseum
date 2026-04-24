@@ -79,28 +79,14 @@ namespace Cyclesseum
 
         public static void Player_ThrownSpear(Player player, Spear spear)
         {
-            if (RainMeadow.RainMeadow.isArenaMode(out var arena) && HideAndSeekGameMode.isHideAndSeekGameMode(arena, out var hideAndSeekGameMode))
+            if (CyclesseumOnlineMethods.IsMyArenaGameMode<HideAndSeekGameMode>(Cyclesseum.HideAndSeekGameMode.isHideAndSeekGameMode, out ArenaOnlineGameMode arena, out HideAndSeekGameMode hideAndSeekGamemMode))
             {
-                var playerOnlineEntity = player.abstractPhysicalObject.GetOnlineObject();
-                OnlineManager
-                       .lobby.clientSettings[playerOnlineEntity.owner]
-                       .TryGetData<HideAndSeekClientData>(out var hideAndSeekClientData);
+                CyclesseumOnlineMethods.TryGetPhysicalObjectOwnerData<Player, HideAndSeekClientData>(player, out var hideAndSeekClientData);
                 if (!hideAndSeekClientData.isSeeker)
                 {
-                    if (!spear.abstractPhysicalObject.GetOnlineObject().TryGetData<SpearColorData>(out var spearColorData))
-                    {
-                        var spearColorDataInstance = new SpearColorData();
-                        spear.abstractPhysicalObject.GetOnlineObject().AddData<SpearColorData>(spearColorDataInstance);
-                    }
-                    else
-                    {
-
-                        spearColorData.color = arena.avatarSettings.bodyColor;
-                    }
                     spear.throwModeFrames = 18;
                     spear.spearDamageBonus = 0.1f + 0.1f * Mathf.Pow(UnityEngine.Random.value, 4f);
                     spear.firstChunk.vel.x *= 0.77f;
-                    spear.color = spearColorData.color;
 
                 }
             }
@@ -110,18 +96,16 @@ namespace Cyclesseum
         {
             // if (RainMeadow.RainMeadow.isArenaMode(out var arena))// && Cyclesseum.HideAndSeekGameMode.isHideAndSeekGameMode(arena, out var gamemode))
             //{ }
-            if (RainMeadow.RainMeadow.isArenaMode(out var arena) && HideAndSeekGameMode.isHideAndSeekGameMode(arena, out var hideAndSeekGameMode) && self.timeSinceSpawned > 0)
+            if (
+                CyclesseumOnlineMethods.IsMyArenaGameMode<HideAndSeekGameMode>(Cyclesseum.HideAndSeekGameMode.isHideAndSeekGameMode, out var arena, out var hideAndSeekGameMode)
+                )
             {
                 /*
                  * 
                  * Basic controls
                  * 
                  */
-                if (!self.abstractPhysicalObject.GetOnlineObject(out var playerOnlineEntity))
-                    return;
-                if (OnlineManager
-                       .lobby.clientSettings[playerOnlineEntity!.owner]
-                       .TryGetData<HideAndSeekClientData>(out var hideAndSeekClientData))
+                if(CyclesseumOnlineMethods.TryGetPhysicalObjectOwnerData<Player,HideAndSeekClientData>(self,out var hideAndSeekClientData))
                 {
                     if (!hideAndSeekClientData.isSeeker)
                     {
@@ -131,6 +115,8 @@ namespace Cyclesseum
                     {
                         self.Template.lungCapacity = 100f;
                     }
+
+
                     if (self.input[0].mp)
                     {
                         var inputX = (float)self.input[0].x;
@@ -149,7 +135,7 @@ namespace Cyclesseum
                         var newV = Mathf.Clamp(v + (inputV * (inputX * 0.01f + inputY * 0.001f)), 0.01f, 0.99f);
 
                         newColor = Color.HSVToRGB(newH, newS, newV);
-                        if (playerOnlineEntity.apo.GetOnlineObject().owner.isMe) ArenaHelpers.GetArenaClientSettings(playerOnlineEntity.apo.GetOnlineObject().owner).slugcatColor = newColor;
+                        if (CyclesseumOnlineMethods.PhysicalObjecOwnerIsMe<Player>(self)) ArenaHelpers.GetArenaClientSettings(CyclesseumOnlineMethods.GetPhysicalObjectOwner<Player>(self)).slugcatColor = newColor;
                         arena.avatarSettings.bodyColor = newColor;
                         arena.arenaClientSettings.slugcatColor = newColor;
                         arena.avatarSettings.eyeColor = newColor;
@@ -160,27 +146,9 @@ namespace Cyclesseum
                     }
                     else
                     {
-                        if (playerOnlineEntity.apo.GetOnlineObject().owner.isMe) arena.avatarSettings.eyeColor = Color.HSVToRGB(Mathf.PingPong(((float)self.timeSinceSpawned) / 40.0f, 1f), 1f, 1f);
+                        if (CyclesseumOnlineMethods.PhysicalObjecOwnerIsMe<Player>(self)) arena.avatarSettings.eyeColor = Color.HSVToRGB(Mathf.PingPong(((float)self.timeSinceSpawned) / 40.0f, 1f), 1f, 1f);
                     }
 
-                    /*
-                     * 
-                     * Objects
-                     * 
-                     */
-
-                    for (int i = 0; i < self.grasps?.Length; i++)
-                    {
-                        var obj = self.grasps[i]?.grabbed as Weapon;
-                        if (obj is Spear)
-                        {
-                            ((Spear)obj).color = arena.arenaClientSettings.slugcatColor;
-                        }
-                        if (obj is Rock)
-                        {
-                            ((Rock)obj).color = arena.arenaClientSettings.slugcatColor;
-                        }
-                    }
 
                     /*
                      * 
@@ -292,67 +260,46 @@ namespace Cyclesseum
 
         public static void Weapon_Update(Weapon weapon, bool eu)
         {
-            if (RainMeadow.RainMeadow.isArenaMode(out var arena) && HideAndSeekGameMode.isHideAndSeekGameMode(arena, out var hideAndSeekGameMode))
+            if (CyclesseumOnlineMethods.IsMyArenaGameMode<HideAndSeekGameMode>(Cyclesseum.HideAndSeekGameMode.isHideAndSeekGameMode,out ArenaOnlineGameMode arena, out HideAndSeekGameMode hideAndSeekGamemMode))
             {
-                if (!weapon.abstractPhysicalObject.GetOnlineObject().TryGetData<SpearColorData>(out var spearColorData))
-                {
-                    var spearColorDataInstance = new SpearColorData();
-                    weapon.abstractPhysicalObject.GetOnlineObject().AddData<SpearColorData>(spearColorDataInstance);
-                }
-                else
+                if (CyclesseumOnlineMethods.TryGetPhysicalObjectData<Weapon, ObjectColorData>(weapon, out ObjectColorData physicalObjectData))
                 {
                     try
                     {
                         if (weapon.grabbedBy[0].grabber is Player)
                         {
-                            OnlineManager.lobby.clientSettings[weapon.grabbedBy[0].grabber.abstractPhysicalObject.GetOnlineObject().owner]
-                                   .TryGetData<ArenaClientSettings>(out var arenaClientData);
+                            CyclesseumOnlineMethods.TryGetPhysicalObjectOwnerData<Creature, ArenaClientSettings>(weapon.grabbedBy[0].grabber, out var arenaClientData);
                             var playerColor = arenaClientData.slugcatColor;
                             weapon.color = playerColor;
-                            try
+                            switch (weapon)
                             {
+                                case MoreSlugcats.ElectricSpear electricSpear:
+                                    electricSpear.electricColor = playerColor;
+                                    electricSpear.blackColor = playerColor;
+                                    break;
 
-                                if (weapon is MoreSlugcats.ElectricSpear)
-                                {
-                                    (weapon as MoreSlugcats.ElectricSpear).electricColor = playerColor;
-                                    (weapon as MoreSlugcats.ElectricSpear).blackColor = playerColor;
-                                }
+                                case ExplosiveSpear explosiveSpear:
+                                    explosiveSpear.redColor = playerColor;
+                                    explosiveSpear.explodeColor = playerColor;
+                                    break;
+
+                                case MoreSlugcats.LillyPuck lillyPuck:
+                                    lillyPuck.flowerColor = playerColor;
+                                    break;
+
+                                case FlareBomb flareBomb:
+                                    flareBomb.color = playerColor;
+                                    break;
                             }
-                            catch (Exception e) { }
-
-                            try
-                            {
-
-                                if (weapon is ExplosiveSpear)
-                                {
-                                    (weapon as ExplosiveSpear).redColor = playerColor;
-                                    (weapon as ExplosiveSpear).explodeColor = playerColor;
-                                }
-                            }
-                            catch (Exception e) { }
-                            try
-                            {
-
-                                if (weapon is MoreSlugcats.LillyPuck)
-                                {
-                                    (weapon as MoreSlugcats.LillyPuck).flowerColor = playerColor;
-                                }
-                            }
-                            catch (Exception e) { }
-
-                            try
-                            {
-
-                                if (weapon is FlareBomb)
-                                {
-                                    (weapon as PlayerCarryableItem).color = playerColor; ;
-                                }
-                            }
-                            catch (Exception e) { }
                         }
                     }
                     catch (Exception e) { }
                     ;
+                }
+                else
+                {
+                    var objectColorDataInstance = new ObjectColorData();
+                    weapon.abstractPhysicalObject.GetOnlineObject().AddData<ObjectColorData>(objectColorDataInstance);
                 }
             }
         }

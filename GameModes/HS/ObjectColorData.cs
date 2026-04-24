@@ -7,11 +7,11 @@ using static RainMeadow.OnlineEntity.EntityData;
 using static RainMeadow.OnlineState;
 using System.Collections.Generic;
 using System.Linq;
-public class SpearColorData : OnlineEntity.EntityData
+public class ObjectColorData : OnlineEntity.EntityData
 {
     public Color color;
 
-    public SpearColorData() { }
+    public ObjectColorData() { }
 
     public override EntityDataState MakeState(OnlineEntity entity, OnlineResource resource)
     {
@@ -25,7 +25,7 @@ public class SpearColorData : OnlineEntity.EntityData
 
         public State() { }
 
-        public State(SpearColorData data, OnlineEntity entity)
+        public State(ObjectColorData data, OnlineEntity entity)
         {
             if (entity is OnlineSpear spear && spear.AbstractSpear.realizedObject is Spear sp)
             {
@@ -44,6 +44,6 @@ public class SpearColorData : OnlineEntity.EntityData
             }
         }
 
-        public override Type GetDataType() => typeof(SpearColorData);
+        public override Type GetDataType() => typeof(ObjectColorData);
     }
 }
