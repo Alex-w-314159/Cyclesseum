@@ -1,0 +1,11 @@
+{
+  "id":"alex_314159.cyclesseum",
+  "name": "Cyclesseum",
+  "version":"2026.04.23.1",
+  "target_game_version": "v1.11.8",
+  "authors": "alex_314159",
+  "description": "My first mod UwU... enjoy arena even more!",
+  "loadafter": [ "henpemaz_rainmeadow"],
+  "tags": [ "Game", "Mechanics" ],
+  "checksum_override_version": false
+}
